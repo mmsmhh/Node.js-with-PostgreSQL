@@ -18,15 +18,15 @@ const routes = require('./routes');
 
 app.use('/', routes);
 
-// // 500 internal server error handler
-// app.use((err, _req, res, next) => {
-//   if (err.statusCode === 404) return next();
-//   res.status(500).json({
-//     err:  err,
-//     msg: '500 Internal Server Error',
-//     data: null,
-//   });
-// });
+// 500 internal server error handler
+app.use((err, _req, res, next) => {
+  if (err.statusCode === 404) return next();
+  res.status(500).json({
+    err:  err,
+    msg: '500 Internal Server Error',
+    data: null,
+  });
+});
 
 // 404 error handler
 app.use((_req, res) => {
