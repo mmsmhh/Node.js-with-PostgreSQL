@@ -1,4 +1,4 @@
-# Node.js-with-PostgresQL
+# Node.js-with-PostgreSQL
 
 ### Stack Used in this applcation
   - NodeJS
