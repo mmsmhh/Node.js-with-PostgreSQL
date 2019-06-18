@@ -71,9 +71,9 @@ module.exports.deleteAgency = (req, res, next) => {
 
 module.exports.updateAgency = (req, res, next) => {
 
-
   let query = null;
   let values = null;
+
   if (req.body.address && req.body.name) {
     query = 'UPDATE Agencies SET name = $1, Address = $2 where AgencyID = $3;';
     values = [req.body.address, req.body.name, req.body.agencyID];
@@ -137,51 +137,99 @@ module.exports.assignEmployeesToAgencies = (req, res, next) => {
 
   const data = {
     ownerID: req.decodedToken.id,
-    employeeID: req.decodedToken.id,
-    agencyID: req.body.address,
+    employeeID: req.body.employeeID,
+    agencyID: req.body.agencyID,
   }
 
-
-
-  db.query('Select * from Agencies where AgencyID = $1', [data.agencyID], (err, result) => {
+  db.query('Select * from Employees where EmployeeID = $1', [data.employeeID], (err, result) => {
     if (err) {
       return next(err)
     } else {
-
       if (result.rows.length == 0) {
         return res.status(401).json({
           err: null,
-          msg: 'No Agency Found.',
+          msg: 'No Employee Found.',
           data: null,
         });
       }
       else {
-        const agency = result.rows[0];
-        if (agency.ownerid != data.ownerID) {
-          return res.status(401).json({
-            err: null,
-            msg: 'You are not the owner of the Agency.',
-            data: null,
-          });
-        }
-        else {
-          const query = 'INSERT INTO EmployeesOfAgencies(EmployeeID,AgencyID) VALUES($1,$2) RETURNING *';
-          const values = [data.employeeID, data.agencyID];
+        db.query('Select * from EmployeesOfAgencies where EmployeeID = $1', [data.employeeID], (err, result) => {
+          if (err) {
+            return next(err)
+          } else {
 
-          db.query(query, values, (err, result) => {
-            if (err) {
-              return next(err)
+            if (result.rows.length != 0) {
+              return res.status(301).json({
+                err: null,
+                msg: ' Employee is Already Assigned.',
+                data: null,
+              });
             }
-            return res.status(200).json({
-              err: null,
-              msg: 'Employee Assigned Successfully.',
-              data: null,
-            });
-          })
-        }
+            else {
+              db.query('Select * from Agencies where AgencyID = $1', [data.agencyID], (err, result) => {
+                if (err) {
+                  return next(err)
+                } else {
+                  console.log(result.rows)
+
+                  if (result.rows.length == 0) {
+                    return res.status(401).json({
+                      err: null,
+                      msg: 'No Agency Found.',
+                      data: null,
+                    });
+                  }
+                  else {
+                    const agency = result.rows[0];
+                    if (agency.ownerid != data.ownerID) {
+                      return res.status(401).json({
+                        err: null,
+                        msg: 'You are not the owner of the Agency.',
+                        data: null,
+                      });
+                    }
+                    else {
+                      const query = 'INSERT INTO EmployeesOfAgencies(EmployeeID,AgencyID) VALUES($1,$2) RETURNING *';
+                      const values = [data.employeeID, data.agencyID];
+
+                      db.query(query, values, (err, result) => {
+                        if (err) {
+                          return next(err)
+                        }
+                        return res.status(200).json({
+                          err: null,
+                          msg: 'Employee Assigned Successfully.',
+                          data: null,
+                        });
+                      })
+                    }
+                  }
+                }
+              })
+
+            }
+
+          }
+
+        });
+
+
+
+
+
+
+
+
+
+
+
       }
     }
-  })
+  });
+
+
+
+
 };
 
 module.exports.getAgencies = (req, res, next) => {
@@ -207,7 +255,7 @@ module.exports.getAgencies = (req, res, next) => {
 module.exports.getEmployeesAgency = (req, res, next) => {
 
   const query = 'select Employees.EmployeeID,Employees.FirstName,Employees.LastName,Employees.Email from Employees inner join EmployeesOfAgencies on EmployeesOfAgencies.EmployeeID = Employees.EmployeeID where EmployeesOfAgencies.AgencyID = $1';
-  const values = [req.params.agencyID];
+  const values = [req.params.id];
 
   db.query(query, values, (err, result) => {
     if (err) {

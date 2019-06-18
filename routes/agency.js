@@ -6,7 +6,7 @@ const { validateBody, agencySchemas } = require('../middlewares/validation');
 
 router.post('/create',validateBody(agencySchemas.createAgencySchema), agencyController.createAgency);
 
-router.delete('/delete/', agencyController.deleteAgency);
+router.delete('/delete/:id', agencyController.deleteAgency);
 
 router.patch('/update',validateBody(agencySchemas.updateAgencySchema), agencyController.updateAgency);
 
@@ -15,6 +15,5 @@ router.post('/assign',validateBody(agencySchemas.assignEmployeesToAgenciesSchema
 router.get('/', agencyController.getAgencies);
 
 router.get('/employees/:id', agencyController.getEmployeesAgency);
-
 
 module.exports = router;

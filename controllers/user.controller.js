@@ -41,6 +41,7 @@ module.exports.registration = (req, res, next) => {
             if (err) {
               return next(err)
             }
+            result.rows[0].password = undefined;
             return res.status(200).json({
               err: null,
               msg: 'User Created Successfully.',
