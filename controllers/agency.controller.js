@@ -71,7 +71,26 @@ module.exports.deleteAgency = (req, res, next) => {
 
 module.exports.updateAgency = (req, res, next) => {
 
-  db.query('Select * from Agencies where AgencyID = $1', [req.params.id], (err, result) => {
+
+  let query = null;
+  let values = null;
+  if (req.body.address && req.body.name) {
+    query = 'UPDATE Agencies SET name = $1, Address = $2 where AgencyID = $3;';
+    values = [req.body.address, req.body.name, req.body.agencyID];
+
+  }
+  else if (req.body.address) {
+    query = 'UPDATE Agencies SET Address = $1 where AgencyID = $2;';
+    values = [req.body.address, req.body.agencyID];
+  }
+  else if (req.body.name) {
+    query = 'UPDATE Agencies SET Name = $1 where AgencyID = $2;';
+    values = [req.body.name, req.body.agencyID];
+  }
+
+
+
+  db.query('Select * from Agencies where AgencyID = $1', [req.body.agencyID], (err, result) => {
     if (err) {
       return next(err)
     } else {
@@ -85,6 +104,7 @@ module.exports.updateAgency = (req, res, next) => {
       }
       else {
         const agency = result.rows[0];
+        console.log(result.rows[0])
         if (agency.ownerid != req.decodedToken.id) {
           return res.status(401).json({
             err: null,
@@ -94,17 +114,15 @@ module.exports.updateAgency = (req, res, next) => {
         }
         else {
 
-          const values = [req.body.name, req.body.address, req.body.agencyID];
-
-          db.query('UPDATE Agencies SET name = $1, Address = $2 where AgencyID = $3;', values, (err, result) => {
+          db.query(query, values, (err, result) => {
             if (err) {
               return next(err)
             } else {
 
               return res.status(200).json({
                 err: null,
-                msg: 'Agency Deleted Successfully.',
-                data: null,
+                msg: 'Agency Updated Successfully.',
+                data: result.rows,
               });
             }
           });

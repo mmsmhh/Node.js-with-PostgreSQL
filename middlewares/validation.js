@@ -32,13 +32,13 @@ module.exports = {
             address: Joi.string().required()
         }),
         updateAgencySchema: Joi.object().keys({
-            name: Joi.string().required(),
-            address: Joi.string().required(),
+            name: Joi.string(),
+            address: Joi.string(),
             agencyID: Joi.number().required()
-        }),
+        }).or('name', 'address'),
         assignEmployeesToAgenciesSchema: Joi.object().keys({
             employeeID: Joi.number().required(),
-            agencyID: Joi.number().required(),  
+            agencyID: Joi.number().required(),
         }),
     }
 }
