@@ -15,8 +15,7 @@ npm install
 example (file .env):
 ```
 PORT=3000
-DATABASE_URL=postgres://wkcflwln:jbJff44Um_PAF1wWXRjDWQRzlVKy25K_@raja.db.elephantsql.com:5432/wkcflwln
-SECRET=H`G]%hlR5Tbnkp]^PkRM^KcG7>O'-yUZ,TW]1v7t?7N1.*R)laDFE`#v"4VqG[z
+DATABASE_URL=
 ```
 
 3- Install ``nodemon``
